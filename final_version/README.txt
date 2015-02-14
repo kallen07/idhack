@@ -33,6 +33,6 @@ MAIN STAGES:
 OUR SUGGESTIONS
 Pictures from the job openings
 Database that includes previous Peace Corps assignments
-Allow for use of "and" when searching API with keywords
+Allow for the use of "and" when searching API with keywords
 
 
