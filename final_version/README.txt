@@ -2,11 +2,11 @@ PEACE CORPS WEB APP (GO EXPLORE THE PEACE CORPS)
 DOCUMENTATION
 
 TEAM MEMBERS:
-Elena Covoka 			(elena.covoka@tufts.edu)
+Elena Cokova 			(elena.cokova@tufts.edu)
 Kevin Dorosh 			(kevin.dorosh@tufts.edu)
 Kalina Allen 			(kalina.allen@tufts.edu)
-Kevin Liu 	 			(kevin.liu@tufts.edu)
-Jeremy Colebrook-Soucie (jcoleb01@tufts.edu)
+Kevin Liu  			(kevin.liu@tufts.edu)
+Jeremy Colebrook-Soucie 	(jcoleb01@tufts.edu)
 
 
 THE IDEA:
