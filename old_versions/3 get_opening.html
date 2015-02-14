@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- please put meta data ... -->
+		<title> hello world </title>
+	</head>
+
+	<body>
+		<h1>
+
+			<div id="description_place"></div>
+			<div id="URL_place"></div> 
+			
+			<script type="text/javascript">
+
+			function CallPeaceCorps()  // returns a URL and description
+			{
+
+				function CallWebAPI()  // gets Peace Corps API
+				{
+					 var responseContainer = document.getElementById('response');
+					 var request = new XMLHttpRequest();
+					 request.open("get", "http://www.peacecorps.gov/api/v1/openings/?", false);
+					 request.send();
+					 
+					 return( request.responseText );
+				}
+
+				var json = CallWebAPI();
+				obj = JSON.parse(json);
+				var length = obj.results.length;
+				var index = Math.floor(Math.random()* length);
+				var rand_opening= obj.results[index];
+				var description_name = rand_opening.project_description;
+				
+				// document.getElementById('description_place').innerHTML = description_name;  
+				// test code: will directly display the description on the webpage
+
+				var URL_name = "http://www.lifenews.com/wp-content/uploads/2014/05/peacecorps3.jpg";
+
+				// document.getElementById('URL_place').innerHTML = URL_name;
+				// test code: will directly display the photo's URL on the webpage
+
+				return( URL:URL_name, description:description_name );
+
+			}
+
+			CallPeaceCorps();
+
+			</script>
+
+		</h1>
+
+
+	</body>
+
+
+</html>

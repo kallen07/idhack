@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+<script>  	// changes the display based on click/swipe 
+	$(document).on("pagecreate","#pageone",function()
+	{
+		// swipe
+  		$('#img-content').on("swipeleft",function()
+  		{
+    		$('#img-content').attr("src", CallPeaceCorps().URL)
+			$('#desc').text(CallPeaceCorps().description);
+  		});  
+  		$('#img-content').on("swiperight",function()
+  		{
+    		$('#img-content').attr("src", "cross.png")
+  		}); 
+
+  		// click   
+  		$('img').on('dragstart', function(event) { event.preventDefault(); });
+  
+  		$('#yas').click(function () 
+  		{
+    		$('#img-content').attr("src", "check.png")
+  		});
+  		$('#no').click(function () 
+  		{
+    		$('#img-content').attr("src", "cross.png")
+  		});
+	});
+
+
+function CallWebAPI()  // gets Peace Corps API
+		{
+			 var responseContainer = document.getElementById('response');
+			 var request = new XMLHttpRequest();
+			 request.open("get", "http://www.peacecorps.gov/api/v1/openings/?", false);
+			 request.send();
+					 
+			 return( request.responseText );
+
+				}
+				
+function CallPeaceCorps()  // returns a URL and description
+			{
+
+				
+
+			var json = CallWebAPI();
+			obj = JSON.parse(json);
+			var length = obj.results.length;
+			var index = Math.floor(Math.random()* length);
+			var rand_opening= obj.results[index];
+			var description_name = rand_opening.project_description;
+			
+			// document.getElementById('description_place').innerHTML = description_name;  
+			// test code: will directly display the description on the webpage
+
+			var URL_name = "http://www.lifenews.com/wp-content/uploads/2014/05/peacecorps3.jpg";
+
+			// document.getElementById('URL_place').innerHTML = URL_name;
+			// test code: will directly display the photo's URL on the webpage
+
+			return{ URL:URL_name, description:description_name };
+
+			}
+</script>
+
+<style>
+table, th, td {
+    border: 0px solid black;
+}
+</style>
+
+</head>
+<body>
+
+<div data-role="page" id="pageone">
+  <div data-role="header">
+    <h1>The swipe Event</h1>
+  </div>
+
+  <div data-role="main" class="ui-content" style="vertical-align:middle; text-align:center">
+    <p>Swipe below</p>
+	<img align="middle" id="img-content" src="check.png" />
+  </div>
+
+  <div data-role="footer">
+    <p id="desc">insert description here</p>
+	<table style="width:100%">
+      <tr>
+        <th><img id="yas" height="50px" width="50px" src="check.png" /></th>
+        <th><img id="no" height="50px" width="50px" src="cross.png" /></th>
+      </tr>
+    </table>
+  </div>
+</div> 
+
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- please to put meta data ... -->
+		<title> hello world </title>
+	</head>
+
+	<body>
+		<h1>
+			<div id="myResults"></div>
+			<script type="text/javascript">
+
+				 function CallWebAPI()
+				 {
+					 var responseContainer = document.getElementById('response');
+					 var request = new XMLHttpRequest();
+					 request.open("get", "http://www.peacecorps.gov/api/v1/openings/?", false);
+					 request.send();
+					 
+					 
+					// obj = JSON.parse(request.responseText);
+					 //response.innerHTML = obj.results[1].title;
+					 return( request.responseText );
+				 
+				 }
+
+				var json = CallWebAPI();
+				obj = JSON.parse(json);
+				var length = obj.results.length;
+				var index = Math.floor(Math.random()* length);
+				var rand_opening= obj.results[index];
+				document.getElementById('myResults').innerHTML = rand_opening.project_description;;
+			</script>
+		</h1>
+
+
+	</body>
+
+
+</html>

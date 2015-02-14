@@ -1,0 +1,22 @@
+ <div>
+ <div id="response">
+ 
+ </div>
+ <input type="button" value="Call Web API" onclick="javascript:CallWebAPI();" />
+ </div>
+
+
+ <script type="text/javascript">
+ function CallWebAPI()
+ {
+ var responseContainer = document.getElementById('response');
+ var request = new XMLHttpRequest();
+ request.open("get", "http://www.peacecorps.gov/api/v1/openings/?", false);
+ request.send();
+ 
+ // response.innerHTML = request.responseText;
+
+ return( request.responseText );
+ 
+ }
+ </script>
