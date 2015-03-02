@@ -7,173 +7,193 @@
 <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
 <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 
-<script>
+	<script>
+
+		// sets up the layout of the page and enables the user-interactive 
+		// swiping and clicking
+		$(document).on("pagecreate","#pageone",function()
+		{
+			var opening_data = CallPeaceCorps();
+	  		$('#desc').text(opening_data.description);
+	  		$('#img-content').attr("src", opening_data.URL)
+			$('#img-loading').css('visibility','hidden');
+			
+		  	$('#img-content').on("swipeleft",function() //yes
+		  	{
+		  		load_data(true);
+		  	});  
+		 	$('#img-content').on("swiperight",function() //no
+		    {
+		    	load_data(false);
+		  	});    
+		  	$('img').on('dragstart', function(event) { event.preventDefault(); });
+		  
+		  	$('#yas').click(function ()  //yes
+		  	{
+		  		load_data(true);
+		  	});
+		  	$('#no').click(function ()  //no
+		  	{
+		  		load_data(false);
+		  	});
+		});
 
 
 
-$(document).on("pagecreate","#pageone",function()
-{
-	var opening_data = CallPeaceCorps();
-  	$('#desc').text(opening_data.description);
-  	$('#img-content').attr("src", opening_data.URL)
-	$('#img-loading').css('visibility','hidden');
-	
-  	$('#img-content').on("swipeleft",function() //yes
-  	{
-  		load_data(true);
-  	});  
- 	$('#img-content').on("swiperight",function() //no
-    {
-    	load_data(false);
-  	});    
-  	$('img').on('dragstart', function(event) { event.preventDefault(); });
-  
-  	$('#yas').click(function ()  //yes
-  	{
-  		load_data(true);
-  	});
-  	$('#no').click(function ()  //no
-  	{
-  		load_data(false);
-  	});
-});
-</script>
+	// load_data coordinates the other functions to load descriptions,
+	// take the user's response, and update the hashtable
+	function load_data(yas) {
+	    $('#img-loading').css('visibility','visible');
+	    var opening_data = CallPeaceCorps();
+		setTimeout(function() {
+	        $('#desc').text(opening_data.description);
+		    $('#img-content').attr("src", opening_data.URL)
+		    update_hash(opening_data.metadata, yas)
+		    $('#img-loading').css('visibility','hidden');
+		    update_hash(opening_data.metadata, yas)
+		    $(document).scrollTop(0);
+		}, 100);
+	}
 
-<script>
-function load_data(yas) {
-    $('#img-loading').css('visibility','visible');
-    var opening_data = CallPeaceCorps();
-	setTimeout(function() {
-        $('#desc').text(opening_data.description);
-	    $('#img-content').attr("src", opening_data.URL)
-	    update_hash(opening_data.metadata, yas)
-	    $('#img-loading').css('visibility','hidden');
-	    update_hash(opening_data.metadata, yas)
-	    $(document).scrollTop(0);
-	}, 100);
-}
 
-function make_metadata(opening)
-{
-	//country, region, sector, language skills
-	var metadata = new Object();
-
-	
-	metadata[opening.region] = 1;
-	metadata[opening.sector] = 1;
-	if(opening.language_skills != "none")
-		metadata[opening.language_skills] = 1;
-
-	return metadata;
-}
-
-function CallWebAPI()  // gets Peace Corps API
-{
-	 var responseContainer = document.getElementById('response');
-	 var request = new XMLHttpRequest();
-	 request.open("get", get_query_url(), false);
-	 request.send();
-	 
-	 return( request.responseText );
-}
-
-function CallPeaceCorps()  // returns a URL and description
-{
-	var json = CallWebAPI();
-	obj = JSON.parse(json);
-	var length = obj.results.length;
-	var index = Math.floor(Math.random()* length);
-	var rand_opening= obj.results[index];
-	var description_name = rand_opening.project_description;
-	
-	// document.getElementById('description_place').innerHTML = description_name;  
-	// test code: will directly display the description on the webpage
-
-	var URL_name = "http://www.lifenews.com/wp-content/uploads/2014/05/peacecorps3.jpg";
-
-	// document.getElementById('URL_place').innerHTML = URL_name;
-	// test code: will directly display the photo's URL on the webpage
-
-	return{ URL:URL_name, description:description_name, metadata: make_metadata(rand_opening)};
-
-}
-
-var big_table = new Object(); // or just {}
-
-//function that updates the hashtable
-//little_table is info for one opening to update big table
-//is_selected, if user upswiped the opening
-function update_hash(little_table, is_selected)
-{
-	var constant = 1;
-	if(!is_selected)
-		constant = -1;
-	for (var k in little_table) 
+	// make_metadata initalizes the "points" of each category that is 
+	// being tracked. we were only able to track a few categories
+	// due to the way we we able to pull information from the 
+	// Peace Corps' API
+	function make_metadata(opening)
 	{
-	    if(!big_table.hasOwnProperty(k))
-			big_table[k] =  constant * little_table[k];
-		else
-			big_table[k] += constant * little_table[k];
-    }
-}
+		//country, region, sector, language skills
+		var metadata = new Object();
 
-//returns the next query url
-function get_query_url()
-{
-	//returns a query url with none/one (probably relevant) keyword at the end
+		
+		metadata[opening.region] = 1;
+		metadata[opening.sector] = 1;
+		if(opening.language_skills != "none")
+			metadata[opening.language_skills] = 1;
 
-	var base_str = "http://www.peacecorps.gov/api/v1/openings/?";
-	var end_str = "keyword="; //goes at the end of the base string
-	var counter = 0; //counts how many elements in freqs
-	var freqs = []; //array of keywords, which are added n times to the list for a frequency n
+		return metadata;
+	}
 
-	for (var k in big_table)
+
+	// CallWebAPI() gets info from the Peace Corps' API 
+	// and returns data in json
+	function CallWebAPI() 
 	{
+		 var responseContainer = document.getElementById('response');
+		 var request = new XMLHttpRequest();
+		 request.open("get", get_query_url(), false);
+		 request.send();
+		 
+		 return( request.responseText );
+	}
 
-		// negative frequencies ignored because of n
-		for (var i = 0; i < big_table[k]; i++){
-			freqs[counter++] = k;
+
+	// CallPeaceCorps() gets data using CallWebAPI(),
+	// parses the data, and returns a description from a random project
+	function CallPeaceCorps() 
+	{
+		var json = CallWebAPI();
+		obj = JSON.parse(json);
+		var length = obj.results.length;
+		var index = Math.floor(Math.random()* length);
+		var rand_opening= obj.results[index];
+		var description_name = rand_opening.project_description;
+
+		// used a dummy photo because the Peace Corps' API doesn't
+		// have photos avaliable at the moment
+		var URL_name = "http://www.lifenews.com/wp-content/uploads/2014/05/peacecorps3.jpg";
+
+		return{ URL:URL_name, description:description_name, metadata: make_metadata(rand_opening)};
+
+	}
+
+
+	// big_table is used in update_hash
+	var big_table = new Object(); // or just {}
+
+
+	// update_hash updates the hashtable based on the user's response 
+	// (did the user upvote or downvote the last description)
+	// little_table is info for one opening to update big_table
+	// is_selected, if user upswiped the opening
+	function update_hash(little_table, is_selected)
+	{
+		var constant = 1;
+		if(!is_selected)
+			constant = -1;
+		for (var k in little_table) 
+		{
+		    if(!big_table.hasOwnProperty(k))
+				big_table[k] =  constant * little_table[k];
+			else
+				big_table[k] += constant * little_table[k];
+	    }
+	}
+
+
+	// get_query_url a query url with none/one (probably relevant) keyword at the end
+	function get_query_url()
+	{
+		var base_str = "http://www.peacecorps.gov/api/v1/openings/?";
+		var end_str = "keyword=";     //goes at the end of the base string
+		var counter = 0;         //counts how many elements in freqs
+		var freqs = [];      //array of keywords, which are added n times to the list for a frequency n
+ 
+		for (var k in big_table)
+		{
+
+			// negative frequencies ignored because of n
+			for (var i = 0; i < big_table[k]; i++){
+				freqs[counter++] = k;
+			}
 		}
+		if (counter==0)
+		{
+			return base_str;
+		}
+		end_str += freqs[Math.floor(Math.random() * counter)];
+		return base_str+end_str;
+		
 	}
-	if (counter==0)
-	{
-		return base_str;
-	}
-	end_str += freqs[Math.floor(Math.random() * counter)];
-	return base_str+end_str;
-	
-}
-</script>
 
-<style>
-table, th, td {
-    border: 0px solid black;
-}
-</style>
+	</script>
+
+
+	<style>
+		table, th, td {
+		    border: 0px solid black;
+		}
+	</style>
+
+
 </head>
+
+
+
 <body>
 
-<div data-role="page" id="pageone">
-  <div data-role="header">
-    <h2>Just Peace Corps Things</h2>
-    <img align="middle" id="img-loading" src="loading.gif" style="display:block; margin-left:auto; margin-right:auto;" />
-  </div>
+	<div data-role="page" id="pageone">
+	  <div data-role="header">
+	    <h2>Just Peace Corps Things</h2>
+	    <img align="middle" id="img-loading" src="loading.gif" style="display:block; margin-left:auto; margin-right:auto;" />
+	  </div>
 
-  <div data-role="main" class="ui-content" style="vertical-align:middle; text-align:center">
-    <p>Swipe left to upvote, right to downvote</p>
-	<img align="middle" id="img-content" src="check.png" style="display:block; margin-left:auto; margin-right:auto;" />
-  </div>
+	  <div data-role="main" class="ui-content" style="vertical-align:middle; text-align:center">
+	    <p>Swipe left to upvote, right to downvote</p>
+		<img align="middle" id="img-content" src="check.png" style="display:block; margin-left:auto; margin-right:auto;" />
+	  </div>
 
-  <div data-role="footer">
-    <p id="desc">Description Loading...</p>
-	<table style="width:100%">
-      <tr>
-        <th><img id="yas" height="50px" width="50px" src="check.png" /></th>
-        <th><img id="no" height="50px" width="50px" src="cross.png" /></th>
-      </tr>
-    </table>
-  </div>
-</div> 
+	  <div data-role="footer">
+	    <p id="desc">Description Loading...</p>
+		<table style="width:100%">
+	      <tr>
+	        <th><img id="yas" height="50px" width="50px" src="check.png" /></th>
+	        <th><img id="no" height="50px" width="50px" src="cross.png" /></th>
+	      </tr>
+	    </table>
+	  </div>
+	</div> 
 
 </body>
+
 </html>
